@@ -1,11 +1,11 @@
 [package]
 name = "rpian-terminal"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Rajesh Patkar<patkar@rajeshpatkar.com>"]
 edition = "2021"
 description = "A simple crate for basic terminal manipulation"
 license = "MIT"
-repository = "https://github.com/rajeshpatkar/rpian-terminal"
+repository = "https://github.com/RajeshPatkarInstitute/rpian-terminal"
 keywords = ["terminal", "ansi", "console"]
 categories = ["command-line-interface"]
 
