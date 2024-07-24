@@ -1,0 +1,13 @@
+[package]
+name = "rpian-terminal"
+version = "0.1.0"
+authors = ["Rajesh Patkar<patkar@rajeshpatkar.com>"]
+edition = "2021"
+description = "A simple crate for basic terminal manipulation"
+license = "MIT"
+repository = "https://github.com/yourusername/rpian-terminal"
+keywords = ["terminal", "ansi", "console"]
+categories = ["command-line-interface"]
+
+[dependencies]
+# No external dependencies for now
