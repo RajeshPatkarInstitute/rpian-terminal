@@ -14,7 +14,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rpian-terminal = "0.1.3"
+rpian-terminal = "0.1.4"
 ```
 
 ## Usage
