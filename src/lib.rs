@@ -7,7 +7,7 @@ pub fn teleport_to(x: u32, y: u32) {
 }
 
 /// Prints a single character to the terminal and immediately flushes the output.
-pub fn putchar(ch: char) {
+pub fn put_char(ch: char) {
     print!("{}", ch);
     io::stdout().flush().unwrap();
 }
