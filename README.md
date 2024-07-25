@@ -17,7 +17,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rpian-terminal = "0.2.0"  # Update this to your new version number
+rpian-terminal = "0.2.0"
 ```
 
 ## Usage
