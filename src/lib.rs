@@ -15,6 +15,18 @@ pub enum Color {
     White = 7,
 }
 
+/// Represents text attributes for terminal output.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Attribute {
+    Reset = 0,
+    Bright = 1,
+    Dim = 2,
+    Underscore = 4,
+    Blink = 5,
+    Reverse = 7,
+    Hidden = 8,
+}
+
 /// Sets the foreground color for subsequent text output.
 ///
 /// # Arguments
@@ -218,4 +230,78 @@ pub fn read_key() -> io::Result<char> {
     let mut input = String::new();
     io::stdin().read_line(&mut input)?;
     Ok(input.chars().next().unwrap_or('\0'))
+}
+
+
+/// Clears from the cursor to the end of the line.
+///
+/// # Errors
+///
+/// Returns an `io::Error` if writing to stdout fails.
+pub fn clear_to_line_end() -> io::Result<()> {
+    write!(io::stdout(), "\x1b[K")?;
+    io::stdout().flush()
+}
+
+/// Clears from the cursor to the start of the line.
+///
+/// # Errors
+///
+/// Returns an `io::Error` if writing to stdout fails.
+pub fn clear_to_line_start() -> io::Result<()> {
+    write!(io::stdout(), "\x1b[1K")?;
+    io::stdout().flush()
+}
+
+/// Clears the entire line.
+///
+/// # Errors
+///
+/// Returns an `io::Error` if writing to stdout fails.
+pub fn clear_line() -> io::Result<()> {
+    write!(io::stdout(), "\x1b[2K")?;
+    io::stdout().flush()
+}
+
+/// Clears from the cursor to the start of the screen.
+///
+/// # Errors
+///
+/// Returns an `io::Error` if writing to stdout fails.
+pub fn clear_to_screen_start() -> io::Result<()> {
+    write!(io::stdout(), "\x1b[1J")?;
+    io::stdout().flush()
+}
+
+/// Clears from the cursor to the end of the screen.
+///
+/// # Errors
+///
+/// Returns an `io::Error` if writing to stdout fails.
+pub fn clear_to_screen_end() -> io::Result<()> {
+    write!(io::stdout(), "\x1b[J")?;
+    io::stdout().flush()
+}
+
+/// Sets the specified text attribute for subsequent text output.
+///
+/// # Arguments
+///
+/// * `attribute` - The attribute to set for the text.
+///
+/// # Errors
+///
+/// Returns an `io::Error` if writing to stdout fails.
+pub fn set_attribute(attribute: Attribute) -> io::Result<()> {
+    write!(io::stdout(), "\x1B[{}m", attribute as u8)?;
+    io::stdout().flush()
+}
+
+/// Resets all text attributes to default.
+///
+/// # Errors
+///
+/// Returns an `io::Error` if writing to stdout fails.
+pub fn reset_attributes() -> io::Result<()> {
+    set_attribute(Attribute::Reset)
 }
