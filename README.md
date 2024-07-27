@@ -24,7 +24,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rpian-terminal = "0.5.0"
+rpian-terminal = "0.5.1"
 ```
 
 ## Usage
@@ -116,6 +116,8 @@ This library is not optimized for performance or comprehensive error handling. I
 
 ## Changelog
 
+### 0.5.1
+- Removed warnings
 ### 0.5.0
 - Added viewport management with `set_viewport` and `get_viewport` functions
 - Introduced drawing functions: `horizontal_line`, `vertical_line`, `diagonal_line`, and `draw_box`

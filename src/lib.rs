@@ -1,4 +1,4 @@
-use std::io::{self, Write, Read};
+use std::io::{self, Write};
 use std::thread;
 use std::time::Duration;
 use std::sync::atomic::{AtomicU16, Ordering};
@@ -306,7 +306,7 @@ pub fn read_key() -> io::Result<char> {
     let first_char = input.chars().next().unwrap_or('\0');
     
     // Clear the rest of the input buffer
-    let mut stdin = io::stdin();
+    let stdin = io::stdin();
     let mut stdout = io::stdout();
     stdin.read_line(&mut String::new())?;
     stdout.flush()?;
