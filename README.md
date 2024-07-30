@@ -1,6 +1,6 @@
 # rpian-terminal
 
-A simple Rust library for terminal manipulation and input/output operations, designed for educational purposes.
+A Rust library for terminal manipulation and drawing, designed for educational purposes at Rajesh Patkar Institute of Software Engineering.
 
 ## IMPORTANT NOTICE
 
@@ -15,8 +15,10 @@ A simple Rust library for terminal manipulation and input/output operations, des
 - Timed waits (seconds, milliseconds, microseconds)
 - Cursor visibility control
 - Various screen and line clearing functions
-- Drawing primitives (lines, boxes)
+- Drawing primitives (lines, boxes with multiple styles, shaded rectangles)
 - Viewport management
+- Unicode support for various symbols (arrows, stars, math symbols, chess pieces, emojis, Braille patterns)
+- Improved error handling
 
 ## Installation
 
@@ -24,7 +26,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rpian-terminal = "0.5.1"
+rpian-terminal = "0.6.0"
 ```
 
 ## Usage
@@ -33,6 +35,7 @@ Here's a quick example of how to use some of the functions:
 
 ```rust
 use rpian_terminal::*;
+use rbox::{draw_box, BoxStyle};
 
 fn main() -> std::io::Result<()> {
     set_viewport(80, 24);
@@ -45,7 +48,7 @@ fn main() -> std::io::Result<()> {
     reset_attributes()?;
 
     draw_box(5, 3, 70, 18, BoxStyle::Double)?;
-    draw_box(10, 5, 60, 14, BoxStyle::Single)?;
+    draw_box(10, 5, 60, 14, BoxStyle::SingleRounded)?;
 
     move_cursor_to(15, 10)?;
     print("Enter your name: ")?;
@@ -61,6 +64,19 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 ```
+
+## Modules
+
+The library is organized into several modules:
+
+- `arrow`: Provides arrow symbols
+- `braille`: Implements Braille patterns
+- `chess`: Offers chess piece symbols
+- `emoji`: Includes various emoji symbols
+- `math`: Provides mathematical symbols
+- `rbox`: Implements box drawing and shading functions
+- `star`: Offers star symbols
+- `triangle`: Provides triangle symbols
 
 ## API Overview
 
@@ -82,16 +98,19 @@ fn main() -> std::io::Result<()> {
 - Functions: `clear_to_line_end`, `clear_to_line_start`, `clear_line`, `clear_to_screen_start`, `clear_to_screen_end`
 
 ### Drawing
-- `BoxStyle` enum: Single, Double
-- `BoxChar` enum: Various box-drawing characters
-- Functions: `horizontal_line`, `vertical_line`, `diagonal_line`, `draw_box`
+- `BoxStyle` enum: Single, Double, SingleRounded, DoubleRounded, Dotted, Dashed
+- `ShadeStyle` enum: Light, Medium, Dark, Solid
+- Functions: `diagonal_line`, `draw_box`, `draw_shaded_rectangle`
 
 ### Viewport Management
 - Functions: `set_viewport`, `get_viewport`
 
+### Symbol Modules
+- Each symbol module (`arrow`, `braille`, `chess`, `emoji`, `math`, `star`, `triangle`) provides enums and functions to access various Unicode symbols
+
 ## Error Handling
 
-Most functions return `io::Result<()>` for consistent error handling.
+Most functions return `io::Result<()>` for consistent error handling. The library includes custom error types like `BoxCharError` for more specific error handling in certain functions.
 
 ## Documentation
 
@@ -116,12 +135,10 @@ This library is not optimized for performance or comprehensive error handling. I
 
 ## Changelog
 
-### 0.5.1
-- Removed warnings
-### 0.5.0
-- Added viewport management with `set_viewport` and `get_viewport` functions
-- Introduced drawing functions: `horizontal_line`, `vertical_line`, `diagonal_line`, and `draw_box`
-- Added `BoxStyle` and `BoxChar` enums for box drawing
-- Deprecated `read_char` in favor of `read_key`
-- Added various screen and line clearing functions
-- Improved documentation and examples
+### 0.6.0
+- Reorganized codebase into modules
+- Added new modules: arrow, braille, chess, emoji, math, star, triangle
+- Improved box drawing with new styles and shading options
+- Added Unicode symbol support for various categories
+- Enhanced error handling with custom error types
+- Updated documentation and examples
