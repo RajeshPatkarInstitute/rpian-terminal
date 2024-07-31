@@ -18,7 +18,7 @@ A Rust library for terminal manipulation and drawing, designed for educational p
 - Drawing primitives (lines, boxes with multiple styles, shaded rectangles)
 - Viewport management
 - Unicode support for various symbols (arrows, stars, math symbols, chess pieces, emojis, Braille patterns)
-- Improved error handling
+- Global error handler for consistent error management
 
 ## Installation
 
@@ -26,7 +26,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rpian-terminal = "0.6.0"
+rpian-terminal = "0.7.0"
 ```
 
 ## Usage
@@ -37,33 +37,34 @@ Here's a quick example of how to use some of the functions:
 use rpian_terminal::*;
 use rbox::{draw_box, BoxStyle};
 
-fn main() -> std::io::Result<()> {
+fn main() {
     set_viewport(80, 24);
-    clear_screen()?;
+    clear_screen();
     
-    set_foreground_color(Color::Green)?;
-    set_attribute(Attribute::Bright)?;
-    println("Welcome to rpian-terminal!")?;
-    reset_color()?;
-    reset_attributes()?;
+    set_foreground_color(Color::Green);
+    set_attribute(Attribute::Bright);
+    println("Welcome to rpian-terminal!");
+    reset_color();
+    reset_attributes();
 
-    draw_box(5, 3, 70, 18, BoxStyle::Double)?;
-    draw_box(10, 5, 60, 14, BoxStyle::SingleRounded)?;
+    draw_box(5, 3, 70, 18, BoxStyle::Double);
+    draw_box(10, 5, 60, 14, BoxStyle::SingleRounded);
 
-    move_cursor_to(15, 10)?;
-    print("Enter your name: ")?;
-    let name = read_line()?;
+    move_cursor_to(15, 10);
+    print("Enter your name: ");
+    let name = read_line();
 
-    move_cursor_to(15, 12)?;
-    set_foreground_color(Color::Blue)?;
-    set_attribute(Attribute::Underscore)?;
-    println(&format!("Hello, {}!", name))?;
+    move_cursor_to(15, 12);
+    set_foreground_color(Color::Blue);
+    set_attribute(Attribute::Underscore);
+    println(&format!("Hello, {}!", name));
 
     wait_for_seconds(2);
-    clear_screen()?;
-    Ok(())
+    clear_screen();
 }
 ```
+
+Note: Error handling is now done internally using the global error handler.
 
 ## Modules
 
@@ -77,6 +78,7 @@ The library is organized into several modules:
 - `rbox`: Implements box drawing and shading functions
 - `star`: Offers star symbols
 - `triangle`: Provides triangle symbols
+- `error`: Implements custom error handling
 
 ## API Overview
 
@@ -89,7 +91,12 @@ The library is organized into several modules:
 - Functions: `move_cursor_to`, `clear_screen`, `save_cursor_location`, `restore_cursor_location`, `show_cursor`, `hide_cursor`
 
 ### Input and Output
-- Functions: `read_key`, `read_line`, `print`, `println`
+- Functions: 
+  - `read_key`: Reads a single keypress
+  - `read_line`: Reads a full line of input
+  - `print`: Outputs a string
+  - `println`: Outputs a string followed by a newline
+  - `put_char`: Outputs a single character
 
 ### Timing
 - Functions: `wait_for_seconds`, `wait_for_millis`, `wait_for_micros`
@@ -100,17 +107,62 @@ The library is organized into several modules:
 ### Drawing
 - `BoxStyle` enum: Single, Double, SingleRounded, DoubleRounded, Dotted, Dashed
 - `ShadeStyle` enum: Light, Medium, Dark, Solid
-- Functions: `diagonal_line`, `draw_box`, `draw_shaded_rectangle`
+- Functions: 
+  - `diagonal_line`: Draws a diagonal line
+  - `draw_box`: Draws a box with specified style
+  - `draw_shaded_rectangle`: Draws a shaded rectangle
+  - `hide_box`: Erases a previously drawn box
 
 ### Viewport Management
-- Functions: `set_viewport`, `get_viewport`
+- Functions: 
+  - `set_viewport(width: u16, height: u16)`: Sets the viewport size
+  - `get_viewport() -> (u16, u16)`: Gets the current viewport size
 
 ### Symbol Modules
-- Each symbol module (`arrow`, `braille`, `chess`, `emoji`, `math`, `star`, `triangle`) provides enums and functions to access various Unicode symbols
+Each symbol module (`arrow`, `braille`, `chess`, `emoji`, `math`, `star`, `triangle`) provides enums and functions to access various Unicode symbols. To use these symbols:
+
+1. Import the desired module: `use rpian_terminal::{modulename}::*;`
+2. Use the provided enums and conversion functions. For example:
+   ```rust
+   use rpian_terminal::arrow::*;
+   let right_arrow = arrow_symbol_to_char(ArrowSymbol::RightArrow);
+   print(&right_arrow.to_string());
+   ```
+
+### Error Handling
+- Custom `ErrorHandler` trait for flexible error management
+- Global error handler that can be set using `set_error_handler`
+- Functions: `handle_io_error`, `handle_boundary_error`
 
 ## Error Handling
 
-Most functions return `io::Result<()>` for consistent error handling. The library includes custom error types like `BoxCharError` for more specific error handling in certain functions.
+The library now uses a global error handler for consistent error management across all functions. Most functions no longer return `Result` types, simplifying usage. Errors are handled internally using the global error handler.
+
+Users can implement the `ErrorHandler` trait to create custom error handling logic:
+
+```rust
+use rpian_terminal::{ErrorHandler, set_error_handler};
+use std::io;
+
+struct MyErrorHandler;
+
+impl ErrorHandler for MyErrorHandler {
+    fn handle_io_error(&self, error: io::Error) {
+        eprintln!("Custom I/O error handling: {}", error);
+    }
+
+    fn handle_boundary_error(&self, message: &str) {
+        eprintln!("Custom boundary error handling: {}", message);
+    }
+}
+
+fn main() {
+    unsafe {
+        set_error_handler(&MyErrorHandler);
+    }
+    // Rest of your code...
+}
+```
 
 ## Documentation
 
@@ -134,6 +186,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 This library is not optimized for performance or comprehensive error handling. It is intentionally kept simple for educational purposes and uses basic ANSI escape sequences for terminal control. For real-world applications, consider using more robust and feature-rich crates like `termion`, `crossterm`, or `ncurses`.
 
 ## Changelog
+
+### 0.7.0
+- Implemented a global error handler system
+- Added custom `ErrorHandler` trait for flexible error management
+- Removed `Result` return types from most functions for simplified usage
+- Enhanced `rbox` module with new box drawing and shading functions
+- Added `hide_box` function for removing drawn boxes
+- Added `put_char` function for single character output
+- Updated viewport functions to use `u16` for dimensions
+- Improved documentation and examples
+- Updated existing modules to use the new error handling system
 
 ### 0.6.0
 - Reorganized codebase into modules

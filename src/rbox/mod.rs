@@ -1,5 +1,8 @@
+//! This module provides functionality for drawing various types of boxes and lines in a terminal environment.
+//! It includes enums for different box styles, line styles, and shading options, as well as functions
+//! to convert these enum variants to their corresponding Unicode characters.
+
 use crate::*;
-use std::error::Error;
 use std::{self, *};
 
 /// Represents block characters for drawing.
@@ -34,6 +37,14 @@ pub enum ShadeStyle {
 }
 
 /// Converts BlockChar enum variant to corresponding character.
+///
+/// # Arguments
+///
+/// * `ch` - The BlockChar variant to convert
+///
+/// # Returns
+///
+/// The Unicode character corresponding to the given BlockChar variant
 pub fn block_char_to_char(ch: BlockChar) -> char {
     match ch {
         BlockChar::Full => '█',
@@ -112,6 +123,14 @@ pub enum DoubleRoundedBox {
 }
 
 /// Converts SingleBox enum variant to corresponding character.
+///
+/// # Arguments
+///
+/// * `ch` - The SingleBox variant to convert
+///
+/// # Returns
+///
+/// The Unicode character corresponding to the given SingleBox variant
 pub fn single_box_to_char(ch: SingleBox) -> char {
     match ch {
         SingleBox::Horizontal => '─',
@@ -129,6 +148,14 @@ pub fn single_box_to_char(ch: SingleBox) -> char {
 }
 
 /// Converts DoubleBox enum variant to corresponding character.
+///
+/// # Arguments
+///
+/// * `ch` - The DoubleBox variant to convert
+///
+/// # Returns
+///
+/// The Unicode character corresponding to the given DoubleBox variant
 pub fn double_box_to_char(ch: DoubleBox) -> char {
     match ch {
         DoubleBox::Horizontal => '═',
@@ -146,6 +173,14 @@ pub fn double_box_to_char(ch: DoubleBox) -> char {
 }
 
 /// Converts SingleRoundedBox enum variant to corresponding character.
+///
+/// # Arguments
+///
+/// * `ch` - The SingleRoundedBox variant to convert
+///
+/// # Returns
+///
+/// The Unicode character corresponding to the given SingleRoundedBox variant
 pub fn single_rounded_box_to_char(ch: SingleRoundedBox) -> char {
     match ch {
         SingleRoundedBox::Horizontal => '─',
@@ -163,6 +198,14 @@ pub fn single_rounded_box_to_char(ch: SingleRoundedBox) -> char {
 }
 
 /// Converts DoubleRoundedBox enum variant to corresponding character.
+///
+/// # Arguments
+///
+/// * `ch` - The DoubleRoundedBox variant to convert
+///
+/// # Returns
+///
+/// The Unicode character corresponding to the given DoubleRoundedBox variant
 pub fn double_rounded_box_to_char(ch: DoubleRoundedBox) -> char {
     match ch {
         DoubleRoundedBox::Horizontal => '═',
@@ -190,7 +233,7 @@ pub enum BoxStyle {
     Dashed,
 }
 
-// Modify the existing BoxChar enum to include the new block characters
+/// Represents all possible box characters.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BoxChar {
     Single(SingleBox),
@@ -201,6 +244,14 @@ pub enum BoxChar {
 }
 
 /// Converts BoxChar enum variant to corresponding character.
+///
+/// # Arguments
+///
+/// * `ch` - The BoxChar variant to convert
+///
+/// # Returns
+///
+/// The Unicode character corresponding to the given BoxChar variant
 pub fn box_char_to_char(ch: BoxChar) -> char {
     match ch {
         BoxChar::Single(single_ch) => single_box_to_char(single_ch),
@@ -212,60 +263,65 @@ pub fn box_char_to_char(ch: BoxChar) -> char {
 }
 
 /// Gets the appropriate character for a line segment based on the line style
+///
+/// # Arguments
+///
+/// * `style` - The LineStyle to use
+/// * `is_vertical` - Whether the line is vertical (true) or horizontal (false)
+///
+/// # Returns
+///
+/// The Unicode character for the specified line style and orientation
 fn get_line_char(style: LineStyle, is_vertical: bool) -> char {
     match style {
-        LineStyle::Solid => {
-            if is_vertical {
-                '│'
-            } else {
-                '─'
-            }
-        }
-        LineStyle::Dotted => {
-            if is_vertical {
-                '┆'
-            } else {
-                '┄'
-            }
-        }
-        LineStyle::Dashed => {
-            if is_vertical {
-                '┊'
-            } else {
-                '┈'
-            }
-        }
-        LineStyle::DoubleLine => {
-            if is_vertical {
-                '║'
-            } else {
-                '═'
-            }
-        }
+        LineStyle::Solid => if is_vertical { '│' } else { '─' },
+        LineStyle::Dotted => if is_vertical { '┆' } else { '┄' },
+        LineStyle::Dashed => if is_vertical { '┊' } else { '┈' },
+        LineStyle::DoubleLine => if is_vertical { '║' } else { '═' },
     }
 }
 
 /// Draws a horizontal line with the specified style
-fn horizontal_line(x: u16, y: u16, width: u16, style: LineStyle) -> io::Result<()> {
-    move_cursor_to(x, y)?;
+///
+/// # Arguments
+///
+/// * `x` - The starting x-coordinate
+/// * `y` - The y-coordinate
+/// * `width` - The width of the line
+/// * `style` - The LineStyle to use
+fn horizontal_line(x: u16, y: u16, width: u16, style: LineStyle) {
+    move_cursor_to(x, y);
     let line_char = get_line_char(style, false);
     for _ in 0..width {
-        put_char(line_char)?;
+        put_char(line_char);
     }
-    Ok(())
 }
 
 /// Draws a vertical line with the specified style
-fn vertical_line(x: u16, y: u16, height: u16, style: LineStyle) -> io::Result<()> {
+///
+/// # Arguments
+///
+/// * `x` - The x-coordinate
+/// * `y` - The starting y-coordinate
+/// * `height` - The height of the line
+/// * `style` - The LineStyle to use
+fn vertical_line(x: u16, y: u16, height: u16, style: LineStyle) {
     let line_char = get_line_char(style, true);
     for i in 0..height {
-        move_cursor_to(x, y + i)?;
-        put_char(line_char)?;
+        move_cursor_to(x, y + i);
+        put_char(line_char);
     }
-    Ok(())
 }
 
 /// Gets the appropriate corner characters for a box based on the box style
+///
+/// # Arguments
+///
+/// * `style` - The BoxStyle to use
+///
+/// # Returns
+///
+/// An array of four characters representing the top-left, top-right, bottom-left, and bottom-right corners
 fn get_box_corners(style: BoxStyle) -> [char; 4] {
     match style {
         BoxStyle::Single => ['┌', '┐', '└', '┘'],
@@ -277,14 +333,21 @@ fn get_box_corners(style: BoxStyle) -> [char; 4] {
     }
 }
 
-pub fn draw_box(x: u16, y: u16, width: u16, height: u16, style: BoxStyle) -> io::Result<()> {
+/// Draws a box with the specified style
+///
+/// # Arguments
+///
+/// * `x` - The x-coordinate of the top-left corner
+/// * `y` - The y-coordinate of the top-left corner
+/// * `width` - The width of the box
+/// * `height` - The height of the box
+/// * `style` - The BoxStyle to use
+pub fn draw_box(x: u16, y: u16, width: u16, height: u16, style: BoxStyle) {
     let (viewport_width, viewport_height) = get_viewport();
 
     if x + width > viewport_width || y + height > viewport_height {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "Box extends beyond viewport",
-        ));
+        handle_boundary_error("Box extends beyond viewport");
+        return;
     }
 
     let corners = get_box_corners(style);
@@ -296,53 +359,39 @@ pub fn draw_box(x: u16, y: u16, width: u16, height: u16, style: BoxStyle) -> io:
     };
 
     // Draw horizontal lines
-    horizontal_line(x + 1, y, width - 2, line_style)?;
-    horizontal_line(x + 1, y + height - 1, width - 2, line_style)?;
+    horizontal_line(x + 1, y, width - 2, line_style);
+    horizontal_line(x + 1, y + height - 1, width - 2, line_style);
 
     // Draw vertical lines
-    vertical_line(x, y + 1, height - 2, line_style)?;
-    vertical_line(x + width - 1, y + 1, height - 2, line_style)?;
+    vertical_line(x, y + 1, height - 2, line_style);
+    vertical_line(x + width - 1, y + 1, height - 2, line_style);
 
     // Draw corners
-    move_cursor_to(x, y)?;
-    put_char(corners[0])?;
-    move_cursor_to(x + width - 1, y)?;
-    put_char(corners[1])?;
-    move_cursor_to(x, y + height - 1)?;
-    put_char(corners[2])?;
-    move_cursor_to(x + width - 1, y + height - 1)?;
-    put_char(corners[3])?;
-
-    io::stdout().flush()
+    move_cursor_to(x, y);
+    put_char(corners[0]);
+    move_cursor_to(x + width - 1, y);
+    put_char(corners[1]);
+    move_cursor_to(x, y + height - 1);
+    put_char(corners[2]);
+    move_cursor_to(x + width - 1, y + height - 1);
+    put_char(corners[3]);
 }
 
-/// Draws a shaded rectangle.
+/// Draws a shaded rectangle
 ///
 /// # Arguments
 ///
-/// * `x` - The x-coordinate of the top-left corner of the rectangle
-/// * `y` - The y-coordinate of the top-left corner of the rectangle
+/// * `x` - The x-coordinate of the top-left corner
+/// * `y` - The y-coordinate of the top-left corner
 /// * `width` - The width of the rectangle
 /// * `height` - The height of the rectangle
-/// * `style` - The shade style of the rectangle
-///
-/// # Errors
-///
-/// Returns an `io::Error` if writing to stdout fails or if the rectangle extends beyond the viewport.
-pub fn draw_shaded_rectangle(
-    x: u16,
-    y: u16,
-    width: u16,
-    height: u16,
-    style: ShadeStyle,
-) -> io::Result<()> {
+/// * `style` - The ShadeStyle to use
+pub fn draw_shaded_rectangle(x: u16, y: u16, width: u16, height: u16, style: ShadeStyle) {
     let (viewport_width, viewport_height) = get_viewport();
 
     if x + width > viewport_width || y + height > viewport_height {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "Rectangle extends beyond viewport",
-        ));
+        handle_boundary_error("Rectangle extends beyond viewport");
+        return;
     }
 
     let shade_char = match style {
@@ -353,72 +402,50 @@ pub fn draw_shaded_rectangle(
     };
 
     for dy in 0..height {
-        move_cursor_to(x, y + dy)?;
+        move_cursor_to(x, y + dy);
         for _ in 0..width {
-            put_char(shade_char)?;
+            put_char(shade_char);
         }
     }
-
-    io::stdout().flush()
 }
 
-/// Hides a box by overwriting it with spaces.
+/// Hides a box by overwriting it with spaces
 ///
 /// # Arguments
 ///
-/// * `x` - The x-coordinate of the top-left corner of the box
-/// * `y` - The y-coordinate of the top-left corner of the box
+/// * `x` - The x-coordinate of the top-left corner
+/// * `y` - The y-coordinate of the top-left corner
 /// * `width` - The width of the box
 /// * `height` - The height of the box
-///
-/// # Errors
-///
-/// Returns an `io::Error` if writing to stdout fails or if the box extends beyond the viewport.
-pub fn hide_box(x: u16, y: u16, width: u16, height: u16) -> io::Result<()> {
+pub fn hide_box(x: u16, y: u16, width: u16, height: u16) {
     let (viewport_width, viewport_height) = get_viewport();
 
     if x + width > viewport_width || y + height > viewport_height {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "Box extends beyond viewport",
-        ));
+        handle_boundary_error("Box extends beyond viewport");
+        return;
     }
 
     for dy in 0..height {
-        move_cursor_to(x, y + dy)?;
+        move_cursor_to(x, y + dy);
         for _ in 0..width {
-            put_char(' ')?;
-        }
-    }
-
-    io::stdout().flush()
-}
-
-#[derive(Debug)]
-pub enum BoxCharError {
-    InvalidCharType(String),
-    InvalidCornerType(String),
-}
-
-impl fmt::Display for BoxCharError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            BoxCharError::InvalidCharType(char_type) => {
-                write!(f, "Invalid box character type: {}", char_type)
-            }
-            BoxCharError::InvalidCornerType(corner_type) => {
-                write!(f, "Invalid corner type: {}", corner_type)
-            }
+            put_char(' ');
         }
     }
 }
-
-impl Error for BoxCharError {}
 
 /// Helper function to get the appropriate BoxChar based on style and type.
-pub fn get_box_char(style: BoxStyle, char_type: &str) -> Result<BoxChar, BoxCharError> {
+///
+/// # Arguments
+///
+/// * `style` - The BoxStyle to use
+/// * `char_type` - A string describing the type of box character (e.g., "Horizontal", "TopLeft")
+///
+/// # Returns
+///
+/// An Option containing the corresponding BoxChar if a match is found, or None if no match is found
+pub fn get_box_char(style: BoxStyle, char_type: &str) -> Option<BoxChar> {
     match style {
-        BoxStyle::Single => Ok(BoxChar::Single(match char_type {
+        BoxStyle::Single => Some(BoxChar::Single(match char_type {
             "Horizontal" => SingleBox::Horizontal,
             "Vertical" => SingleBox::Vertical,
             "TopLeft" => SingleBox::TopLeft,
@@ -430,9 +457,9 @@ pub fn get_box_char(style: BoxStyle, char_type: &str) -> Result<BoxChar, BoxChar
             "HorizontalDown" => SingleBox::HorizontalDown,
             "HorizontalUp" => SingleBox::HorizontalUp,
             "VerticalHorizontal" => SingleBox::VerticalHorizontal,
-            _ => return Err(BoxCharError::InvalidCharType(char_type.to_string())),
+            _ => return None,
         })),
-        BoxStyle::Double => Ok(BoxChar::Double(match char_type {
+        BoxStyle::Double => Some(BoxChar::Double(match char_type {
             "Horizontal" => DoubleBox::Horizontal,
             "Vertical" => DoubleBox::Vertical,
             "TopLeft" => DoubleBox::TopLeft,
@@ -444,9 +471,9 @@ pub fn get_box_char(style: BoxStyle, char_type: &str) -> Result<BoxChar, BoxChar
             "HorizontalDown" => DoubleBox::HorizontalDown,
             "HorizontalUp" => DoubleBox::HorizontalUp,
             "VerticalHorizontal" => DoubleBox::VerticalHorizontal,
-            _ => return Err(BoxCharError::InvalidCharType(char_type.to_string())),
+            _ => return None,
         })),
-        BoxStyle::SingleRounded => Ok(BoxChar::SingleRounded(match char_type {
+        BoxStyle::SingleRounded => Some(BoxChar::SingleRounded(match char_type {
             "Horizontal" => SingleRoundedBox::Horizontal,
             "Vertical" => SingleRoundedBox::Vertical,
             "TopLeft" => SingleRoundedBox::TopLeft,
@@ -458,9 +485,9 @@ pub fn get_box_char(style: BoxStyle, char_type: &str) -> Result<BoxChar, BoxChar
             "HorizontalDown" => SingleRoundedBox::HorizontalDown,
             "HorizontalUp" => SingleRoundedBox::HorizontalUp,
             "VerticalHorizontal" => SingleRoundedBox::VerticalHorizontal,
-            _ => return Err(BoxCharError::InvalidCharType(char_type.to_string())),
+            _ => return None,
         })),
-        BoxStyle::DoubleRounded => Ok(BoxChar::DoubleRounded(match char_type {
+        BoxStyle::DoubleRounded => Some(BoxChar::DoubleRounded(match char_type {
             "Horizontal" => DoubleRoundedBox::Horizontal,
             "Vertical" => DoubleRoundedBox::Vertical,
             "TopLeft" => DoubleRoundedBox::TopLeft,
@@ -472,9 +499,9 @@ pub fn get_box_char(style: BoxStyle, char_type: &str) -> Result<BoxChar, BoxChar
             "HorizontalDown" => DoubleRoundedBox::HorizontalDown,
             "HorizontalUp" => DoubleRoundedBox::HorizontalUp,
             "VerticalHorizontal" => DoubleRoundedBox::VerticalHorizontal,
-            _ => return Err(BoxCharError::InvalidCharType(char_type.to_string())),
+            _ => return None,
         })),
-        BoxStyle::Dotted => Ok(BoxChar::Single(match char_type {
+        BoxStyle::Dotted | BoxStyle::Dashed => Some(BoxChar::Single(match char_type {
             "Horizontal" => SingleBox::Horizontal,
             "Vertical" => SingleBox::Vertical,
             "TopLeft" => SingleBox::TopLeft,
@@ -486,21 +513,7 @@ pub fn get_box_char(style: BoxStyle, char_type: &str) -> Result<BoxChar, BoxChar
             "HorizontalDown" => SingleBox::HorizontalDown,
             "HorizontalUp" => SingleBox::HorizontalUp,
             "VerticalHorizontal" => SingleBox::VerticalHorizontal,
-            _ => return Err(BoxCharError::InvalidCharType(char_type.to_string())),
-        })),
-        BoxStyle::Dashed => Ok(BoxChar::Single(match char_type {
-            "Horizontal" => SingleBox::Horizontal,
-            "Vertical" => SingleBox::Vertical,
-            "TopLeft" => SingleBox::TopLeft,
-            "TopRight" => SingleBox::TopRight,
-            "BottomLeft" => SingleBox::BottomLeft,
-            "BottomRight" => SingleBox::BottomRight,
-            "VerticalLeft" => SingleBox::VerticalLeft,
-            "VerticalRight" => SingleBox::VerticalRight,
-            "HorizontalDown" => SingleBox::HorizontalDown,
-            "HorizontalUp" => SingleBox::HorizontalUp,
-            "VerticalHorizontal" => SingleBox::VerticalHorizontal,
-            _ => return Err(BoxCharError::InvalidCharType(char_type.to_string())),
+            _ => return None,
         })),
     }
 }
@@ -509,56 +522,49 @@ pub fn get_box_char(style: BoxStyle, char_type: &str) -> Result<BoxChar, BoxChar
 ///
 /// # Arguments
 ///
-/// * `style` - The style of the box
-/// * `corner` - The type of corner ("TopLeft", "TopRight", "BottomLeft", or "BottomRight")
+/// * `style` - The BoxStyle to use
+/// * `corner` - A string describing the corner type ("TopLeft", "TopRight", "BottomLeft", or "BottomRight")
 ///
 /// # Returns
 ///
-/// Returns the character to use for the specified corner of the box, or an error if the corner type is invalid.
-pub fn get_corner_char(style: BoxStyle, corner: &str) -> Result<char, BoxCharError> {
+/// An Option containing the corresponding corner character if a match is found, or None if no match is found
+pub fn get_corner_char(style: BoxStyle, corner: &str) -> Option<char> {
     let corner_char = match style {
         BoxStyle::Single => match corner {
             "TopLeft" => single_box_to_char(SingleBox::TopLeft),
             "TopRight" => single_box_to_char(SingleBox::TopRight),
             "BottomLeft" => single_box_to_char(SingleBox::BottomLeft),
             "BottomRight" => single_box_to_char(SingleBox::BottomRight),
-            _ => return Err(BoxCharError::InvalidCornerType(corner.to_string())),
+            _ => return None,
         },
         BoxStyle::Double => match corner {
             "TopLeft" => double_box_to_char(DoubleBox::TopLeft),
             "TopRight" => double_box_to_char(DoubleBox::TopRight),
             "BottomLeft" => double_box_to_char(DoubleBox::BottomLeft),
             "BottomRight" => double_box_to_char(DoubleBox::BottomRight),
-            _ => return Err(BoxCharError::InvalidCornerType(corner.to_string())),
+            _ => return None,
         },
         BoxStyle::SingleRounded => match corner {
             "TopLeft" => single_rounded_box_to_char(SingleRoundedBox::TopLeft),
             "TopRight" => single_rounded_box_to_char(SingleRoundedBox::TopRight),
             "BottomLeft" => single_rounded_box_to_char(SingleRoundedBox::BottomLeft),
             "BottomRight" => single_rounded_box_to_char(SingleRoundedBox::BottomRight),
-            _ => return Err(BoxCharError::InvalidCornerType(corner.to_string())),
+            _ => return None,
         },
         BoxStyle::DoubleRounded => match corner {
             "TopLeft" => double_rounded_box_to_char(DoubleRoundedBox::TopLeft),
             "TopRight" => double_rounded_box_to_char(DoubleRoundedBox::TopRight),
             "BottomLeft" => double_rounded_box_to_char(DoubleRoundedBox::BottomLeft),
             "BottomRight" => double_rounded_box_to_char(DoubleRoundedBox::BottomRight),
-            _ => return Err(BoxCharError::InvalidCornerType(corner.to_string())),
+            _ => return None,
         },
-        BoxStyle::Dotted => match corner {
+        BoxStyle::Dotted | BoxStyle::Dashed => match corner {
             "TopLeft" => single_box_to_char(SingleBox::TopLeft),
             "TopRight" => single_box_to_char(SingleBox::TopRight),
             "BottomLeft" => single_box_to_char(SingleBox::BottomLeft),
             "BottomRight" => single_box_to_char(SingleBox::BottomRight),
-            _ => return Err(BoxCharError::InvalidCornerType(corner.to_string())),
-        },
-        BoxStyle::Dashed => match corner {
-            "TopLeft" => single_box_to_char(SingleBox::TopLeft),
-            "TopRight" => single_box_to_char(SingleBox::TopRight),
-            "BottomLeft" => single_box_to_char(SingleBox::BottomLeft),
-            "BottomRight" => single_box_to_char(SingleBox::BottomRight),
-            _ => return Err(BoxCharError::InvalidCornerType(corner.to_string())),
+            _ => return None,
         },
     };
-    Ok(corner_char)
+    Some(corner_char)
 }
