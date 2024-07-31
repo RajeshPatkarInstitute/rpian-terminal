@@ -1,4 +1,4 @@
-use std::io::{self, Write};
+use crate::*;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum HorizontalLineStyle {
@@ -31,14 +31,23 @@ pub fn get_horizontal_line_char(style: &HorizontalLineStyle) -> char {
     }
 }
 
-pub fn horizontal_line(x: u32, y: u32, size: usize, style: HorizontalLineStyle) {
+pub fn horizontal_line(x: u16, y: u16, size: usize, style: HorizontalLineStyle) {
+    let (viewport_width, viewport_height) = get_viewport();
+    if x >= viewport_width || y >= viewport_height {
+        handle_boundary_error("Line start position is outside viewport");
+        return;
+    }
+    if x + size as u16 > viewport_width {
+        handle_boundary_error("Line extends beyond viewport width");
+        return;
+    }
+
     let line_char = get_horizontal_line_char(&style);
-    move_cursor_to(x, y)?;
+    move_cursor_to(x, y);
 
     for _ in 0..size {
-        print!("{}", line_char);
+        put_char(line_char);
     }
-    io::stdout().flush().unwrap();
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -70,13 +79,22 @@ pub fn get_vertical_line_char(style: &VerticalLineStyle) -> char {
     }
 }
 
-pub fn vertical_line(x: u32, y: u32, size: usize, style: VerticalLineStyle) {
+pub fn vertical_line(x: u16, y: u16, size: usize, style: VerticalLineStyle) {
+    let (viewport_width, viewport_height) = get_viewport();
+    if x >= viewport_width || y >= viewport_height {
+        handle_boundary_error("Line start position is outside viewport");
+        return;
+    }
+    if y + size as u16 > viewport_height {
+        handle_boundary_error("Line extends beyond viewport height");
+        return;
+    }
+
     let line_char = get_vertical_line_char(&style);
     for i in 0..size {
-        move_cursor_to(x, y + i as u32)?;
-        print!("{}", line_char);
+        move_cursor_to(x, y + i as u16);
+        put_char(line_char);
     }
-    io::stdout().flush().unwrap();
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -96,18 +114,34 @@ pub fn get_diagonal_line_char(style: &DiagonalLineStyle) -> char {
     }
 }
 
-pub fn diagonal_line(x: u32, y: u32, size: usize, style: &DiagonalLineStyle) {
-    let line_char = get_diagonal_line_char(&style);
+pub fn diagonal_line(x: u16, y: u16, size: usize, style: &DiagonalLineStyle) {
+    let (viewport_width, viewport_height) = get_viewport();
+    if x >= viewport_width || y >= viewport_height {
+        handle_boundary_error("Line start position is outside viewport");
+        return;
+    }
+
+    let line_char = get_diagonal_line_char(style);
     for i in 0..size {
-        match style {
+        let (new_x, new_y) = match style {
             DiagonalLineStyle::BackwardDiagonal | DiagonalLineStyle::BackwardSlash => {
-                move_cursor_to(x + i as u32, y + i as u32)?; // Down-right diagonal
+                (x + i as u16, y + i as u16)
             }
             DiagonalLineStyle::ForwardDiagonal | DiagonalLineStyle::ForwardSlash => {
-                move_cursor_to(x + i as u32, y - i as u32)?; // Up-right diagonal
+                if y < i as u16 {
+                    handle_boundary_error("Line extends beyond top of viewport");
+                    return;
+                }
+                (x + i as u16, y - i as u16)
             }
+        };
+
+        if new_x >= viewport_width || new_y >= viewport_height {
+            handle_boundary_error("Line extends beyond viewport");
+            return;
         }
-        print!("{}", line_char);
+
+        move_cursor_to(new_x, new_y);
+        put_char(line_char);
     }
-    io::stdout().flush().unwrap();
 }

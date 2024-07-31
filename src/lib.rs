@@ -18,6 +18,7 @@ pub mod math;
 pub mod rbox;
 pub mod star;
 pub mod triangle;
+pub mod line;
 
 // Define static variables for viewport size
 static VIEWPORT_WIDTH: AtomicU16 = AtomicU16::new(80);
