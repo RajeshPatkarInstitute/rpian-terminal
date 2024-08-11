@@ -27,7 +27,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rpian-terminal = "0.8.0"
+rpian-terminal = "0.8.1"
 ```
 
 ## Usage
@@ -37,7 +37,7 @@ Here's a quick example of how to use some of the functions:
 ```rust
 use rpian_terminal::*;
 use rbox::{draw_box, BoxStyle};
-use line::{Line, Direction};
+use line::{Line, Direction, Shape};
 
 fn main() {
     set_viewport(80, 24);
