@@ -1,6 +1,6 @@
 [package]
 name = "rpian-terminal"
-version = "0.7.1"
+version = "0.8.0"
 authors = ["Rajesh Patkar<patkar@rajeshpatkar.com>"]
 edition = "2021"
 description = "A simple crate for basic terminal manipulation"

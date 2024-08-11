@@ -19,6 +19,7 @@ A Rust library for terminal manipulation and drawing, designed for educational p
 - Viewport management
 - Unicode support for various symbols (arrows, stars, math symbols, chess pieces, emojis, Braille patterns)
 - Global error handler for consistent error management
+- Enhanced line drawing capabilities with various styles and directions
 
 ## Installation
 
@@ -26,7 +27,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rpian-terminal = "0.7.1"
+rpian-terminal = "0.8.0"
 ```
 
 ## Usage
@@ -36,6 +37,7 @@ Here's a quick example of how to use some of the functions:
 ```rust
 use rpian_terminal::*;
 use rbox::{draw_box, BoxStyle};
+use line::{Line, Direction};
 
 fn main() {
     set_viewport(80, 24);
@@ -50,11 +52,18 @@ fn main() {
     draw_box(5, 3, 70, 18, BoxStyle::Double);
     draw_box(10, 5, 60, 14, BoxStyle::SingleRounded);
 
-    move_cursor_to(15, 10);
+    let mut line = Line::new();
+    line.x = 15;
+    line.y = 10;
+    line.size = 20;
+    line.direction = Direction::East;
+    line.show(Some(2));
+
+    move_cursor_to(15, 12);
     print("Enter your name: ");
     let name = read_line();
 
-    move_cursor_to(15, 12);
+    move_cursor_to(15, 14);
     set_foreground_color(Color::Blue);
     set_attribute(Attribute::Underscore);
     println(&format!("Hello, {}!", name));
@@ -64,7 +73,7 @@ fn main() {
 }
 ```
 
-Note: Error handling is now done internally using the global error handler.
+Note: Error handling is done internally using the global error handler.
 
 ## Modules
 
@@ -79,6 +88,8 @@ The library is organized into several modules:
 - `star`: Offers star symbols
 - `triangle`: Provides triangle symbols
 - `error`: Implements custom error handling
+- `line`: Implements enhanced line drawing capabilities
+- `circle`: Provides circle symbols
 
 ## API Overview
 
@@ -113,21 +124,22 @@ The library is organized into several modules:
   - `draw_shaded_rectangle`: Draws a shaded rectangle
   - `hide_box`: Erases a previously drawn box
 
+### Line Drawing
+- `Line` struct: Represents a line with customizable properties
+- `Direction` enum: North, South, East, West, NorthEast, NorthWest, SouthEast, SouthWest
+- `LineStyle` struct: Customizes line appearance
+- Functions:
+  - `horizontal_line`: Draws a horizontal line
+  - `vertical_line`: Draws a vertical line
+  - `diagonal_line`: Draws a diagonal line
+
 ### Viewport Management
 - Functions: 
   - `set_viewport(width: u16, height: u16)`: Sets the viewport size
   - `get_viewport() -> (u16, u16)`: Gets the current viewport size
 
 ### Symbol Modules
-Each symbol module (`arrow`, `braille`, `chess`, `emoji`, `math`, `star`, `triangle`) provides enums and functions to access various Unicode symbols. To use these symbols:
-
-1. Import the desired module: `use rpian_terminal::{modulename}::*;`
-2. Use the provided enums and conversion functions. For example:
-   ```rust
-   use rpian_terminal::arrow::*;
-   let right_arrow = arrow_symbol_to_char(ArrowSymbol::RightArrow);
-   print(&right_arrow.to_string());
-   ```
+Each symbol module (`arrow`, `braille`, `chess`, `emoji`, `math`, `star`, `triangle`, `circle`) provides enums and functions to access various Unicode symbols.
 
 ### Error Handling
 - Custom `ErrorHandler` trait for flexible error management
@@ -136,7 +148,7 @@ Each symbol module (`arrow`, `braille`, `chess`, `emoji`, `math`, `star`, `trian
 
 ## Error Handling
 
-The library now uses a global error handler for consistent error management across all functions. Most functions no longer return `Result` types, simplifying usage. Errors are handled internally using the global error handler.
+The library uses a global error handler for consistent error management across all functions. Most functions no longer return `Result` types, simplifying usage. Errors are handled internally using the global error handler.
 
 Users can implement the `ErrorHandler` trait to create custom error handling logic:
 
@@ -186,6 +198,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 This library is not optimized for performance or comprehensive error handling. It is intentionally kept simple for educational purposes and uses basic ANSI escape sequences for terminal control. For real-world applications, consider using more robust and feature-rich crates like `termion`, `crossterm`, or `ncurses`.
 
 ## Changelog
+
+### 0.8.0
+- Enhanced line drawing capabilities with the new `line` module
+- Added `Line` struct for more flexible line drawing
+- Introduced `Direction` enum for specifying line directions
+- Added `LineStyle` struct for customizing line appearance
+- Implemented new line drawing functions: `horizontal_line`, `vertical_line`, `diagonal_line`
+- Added `circle` module with circle symbols
+- Updated existing modules to use the new line drawing system
+- Improved documentation and examples
 
 ### 0.7.0
 - Implemented a global error handler system

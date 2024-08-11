@@ -37,10 +37,6 @@ fn main() {
     read_line();
     test_box_drawing();
 
-    // Test diagonal line
-    read_line();
-    test_diagonal_line();
-
     println("All tests completed. Press Enter to exit.");
     read_line();
     clear_screen();
@@ -181,11 +177,3 @@ fn test_box_drawing() {
     println("Box drawing test completed");
 }
 
-fn test_diagonal_line() {
-    clear_screen();
-    println("Testing diagonal line function");
-    diagonal_line('*', 1, 1, 20, 20);
-    diagonal_line('#', 1, 20, 20, 1);
-    move_cursor_to(1, 22);
-    println("Diagonal line test completed");
-}

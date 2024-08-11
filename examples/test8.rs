@@ -18,10 +18,10 @@ fn main() {
     vertical_line(34, 3, 5, VerticalLineStyle::Double);
 
     // Test diagonal lines
-    diagonal_line(80, 23, 5, &DiagonalLineStyle::ForwardDiagonal);
-    diagonal_line(90, 23, 5, &DiagonalLineStyle::BackwardDiagonal);
-    diagonal_line(100,23, 5, &DiagonalLineStyle::ForwardSlash);
-    diagonal_line(110, 23, 5, &DiagonalLineStyle::BackwardSlash);
+    diagonal_line(80, 23, 5, Direction::NorthEast);
+    diagonal_line(90, 23, 5, Direction::NorthWest);
+    diagonal_line(100,23, 5, Direction::SouthEast);
+    diagonal_line(110, 23, 5, Direction::SouthWest);
 
     // Display legend
     move_cursor_to(5, 15);
